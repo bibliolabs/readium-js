@@ -320,5 +320,6 @@ var requirejs = {
         }
     },
 
-    exclude: ['jquery', 'underscore', 'backbone', 'URIjs']
+// BiblioLabs -- need these dependencies built in!
+//    exclude: ['jquery', 'underscore', 'backbone', 'URIjs']
 };
