@@ -116,7 +116,6 @@ module.exports = function(grunt) {
     });
 
     grunt.initConfig({
-
         requirejs: {
             compile: {
                 options: {
@@ -135,13 +134,37 @@ module.exports = function(grunt) {
                 }
             }
         },
+        template: {
+            readium: {
+                options: {
+                    data: function() {
+                        var jqueryData = grunt.file.read('epub-modules/epub-renderer/src/readium-shared-js/lib/jquery.js');
+                        var backboneData = grunt.file.read('lib/backbone-0.9.10.js');
+                        var underscoreData = grunt.file.read('lib/underscore-1.4.4.js');
+                        var requirejsData = grunt.file.read('lib/require.js');
+                        var readiumData = grunt.file.read('out/Readium.js');
+                        return {
+                            requirejs: requirejsData,
+                            jquery: jqueryData,
+                            backbone: backboneData,
+                            underscore: underscoreData,
+                            readium: readiumData
+                        };
+                    }
+                },
+                files: {
+                    'out/ReadiumFinal.js': ['bibliolabs/depsTemplate.tpl']
+                }
+            }
+        }
 
 
     });
     
 
     require('load-grunt-tasks')(grunt);
+    grunt.loadNpmTasks('grunt-template');
     
-    grunt.registerTask('default', ['versioning', 'requirejs']);
+    grunt.registerTask('default', ['versioning', 'requirejs', 'template']);
 
 };
