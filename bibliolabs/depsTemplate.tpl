@@ -9,6 +9,8 @@ window.EPUBcfi = undefined;
 
     <%= jquery %>
 
+    <%= jquery_duckpunches %>
+
     readiumDeps.jQuery = readiumDeps.$ = module.exports;
 
 })();

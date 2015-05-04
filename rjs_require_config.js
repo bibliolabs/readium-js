@@ -41,7 +41,7 @@ var requirejs = {
         pageOpenRequest: 'epub-modules/epub-renderer/src/readium-shared-js/js/models/page_open_request',
         smilIterator: 'epub-modules/epub-renderer/src/readium-shared-js/js/models/smil_iterator',
         epubCfi: 'epub-modules/epub-renderer/src/readium-shared-js/lib/epub_cfi',
-        cfiNavigationLogic: 'epub-modules/epub-renderer/src/readium-shared-js/js/views/cfi_navigation_logic',
+        cfiNavigationLogic: 'bibliolabs/cfi_navigation_logic',
         reflowableView: 'epub-modules/epub-renderer/src/readium-shared-js/js/views/reflowable_view',
         scrollView: 'epub-modules/epub-renderer/src/readium-shared-js/js/views/scroll_view',
         onePageView: 'epub-modules/epub-renderer/src/readium-shared-js/js/views/one_page_view',

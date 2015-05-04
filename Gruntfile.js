@@ -138,14 +138,16 @@ module.exports = function(grunt) {
             readium: {
                 options: {
                     data: function() {
-                        var jqueryData = grunt.file.read('epub-modules/epub-renderer/src/readium-shared-js/lib/jquery.js');
-                        var backboneData = grunt.file.read('lib/backbone-0.9.10.js');
-                        var underscoreData = grunt.file.read('lib/underscore-1.4.4.js');
                         var requirejsData = grunt.file.read('lib/require.js');
+                        var jqueryData = grunt.file.read('epub-modules/epub-renderer/src/readium-shared-js/lib/jquery.js');
+                        var jqueryXmlNamespaceData = grunt.file.read('bibliolabs/jquery_xml_namespace_duckpunches.js');
+                        var underscoreData = grunt.file.read('lib/underscore-1.4.4.js');
+                        var backboneData = grunt.file.read('lib/backbone-0.9.10.js');
                         var readiumData = grunt.file.read('out/Readium.js');
                         return {
                             requirejs: requirejsData,
                             jquery: jqueryData,
+                            jquery_duckpunches: jqueryXmlNamespaceData,
                             backbone: backboneData,
                             underscore: underscoreData,
                             readium: readiumData
