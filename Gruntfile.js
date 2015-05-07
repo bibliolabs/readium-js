@@ -24,6 +24,8 @@ module.exports = function(grunt) {
     // Compile a list of paths and output files for our modules for requirejs to compile.
     // TODO: Translate the command-line code to this.
 
+    grunt.template.addDelimiters('squareBracketDelim', '[%', '%]');
+
     grunt.registerTask('versioning', function(){
 
         var done = this.async();
@@ -137,6 +139,7 @@ module.exports = function(grunt) {
         template: {
             readium: {
                 options: {
+                    delimiters: 'squareBracketDelim',
                     data: function() {
                         var requirejsData = grunt.file.read('lib/require.js');
                         var jqueryData = grunt.file.read('epub-modules/epub-renderer/src/readium-shared-js/lib/jquery.js');

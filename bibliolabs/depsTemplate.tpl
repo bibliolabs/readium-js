@@ -7,9 +7,9 @@ window.EPUBcfi = undefined;
     };
     var exports = module.exports;
 
-    <%= jquery %>
+    [%= jquery %]
 
-    <%= jquery_duckpunches %>
+    [%= jquery_duckpunches %]
 
     readiumDeps.jQuery = readiumDeps.$ = module.exports;
 
@@ -23,7 +23,7 @@ window.EPUBcfi = undefined;
     var jQuery = readiumDeps.jQuery;
     var $ = readiumDeps.$;
 
-    <%= underscore %>
+    [%= underscore %]
 
     readiumDeps._ = module.exports;
 })();
@@ -37,7 +37,7 @@ window.EPUBcfi = undefined;
     var $ = readiumDeps.$;
     var _ = readiumDeps._;
 
-    <%= backbone %>
+    [%= backbone %]
 
     readiumDeps.Backbone = module.exports;
 }).apply(readiumDeps);
@@ -48,7 +48,7 @@ window.EPUBcfi = undefined;
     var _ = readiumDeps._;
     var Backbone = readiumDeps.Backbone;
 
-    <%= requirejs %> 
+    [%= requirejs %] 
 
     define("jquery", [], (function (global) {
         return function () {
@@ -71,7 +71,7 @@ window.EPUBcfi = undefined;
         };
     })(readiumDeps));
 
-    <%= readium %>
+    [%= readium %]
 
     require(['Readium'], function(readium) {
         //window.Readium = readium;
