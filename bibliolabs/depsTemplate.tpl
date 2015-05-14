@@ -9,6 +9,9 @@ window.EPUBcfi = undefined;
 
     [%= jquery %]
 
+    var jQuery = module.exports;
+    var $ = jQuery;
+
     [%= jquery_duckpunches %]
 
     readiumDeps.jQuery = readiumDeps.$ = module.exports;
@@ -73,9 +76,11 @@ window.EPUBcfi = undefined;
 
     [%= readium %]
 
-    require(['Readium'], function(readium) {
-        //window.Readium = readium;
-        window.onReadiumLoad(readium);
+    [%= readerApi %]
+
+    require(['epubViewerApi'], function(epubViewerApi) {
+        //window.onReaderLoad(epubViewerApi);
+        window.epubViewerApi = epubViewerApi;
     });
 
 })();

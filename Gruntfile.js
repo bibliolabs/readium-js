@@ -144,6 +144,7 @@ module.exports = function(grunt) {
                         var requirejsData = grunt.file.read('lib/require.js');
                         var jqueryData = grunt.file.read('epub-modules/epub-renderer/src/readium-shared-js/lib/jquery.js');
                         var jqueryXmlNamespaceData = grunt.file.read('bibliolabs/jquery_xml_namespace_duckpunches.js');
+                        var readerApiData = grunt.file.read('bibliolabs/EpubViewerApi.js');
                         var underscoreData = grunt.file.read('lib/underscore-1.4.4.js');
                         var backboneData = grunt.file.read('lib/backbone-0.9.10.js');
                         var readiumData = grunt.file.read('out/Readium.js');
@@ -153,7 +154,8 @@ module.exports = function(grunt) {
                             jquery_duckpunches: jqueryXmlNamespaceData,
                             backbone: backboneData,
                             underscore: underscoreData,
-                            readium: readiumData
+                            readium: readiumData,
+                            readerApi: readerApiData
                         };
                     }
                 },
