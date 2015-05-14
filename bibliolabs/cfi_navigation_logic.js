@@ -174,7 +174,7 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
         for (var i = 0, l = clientRectangles.length; i < l; ++i) {
             if (isRectVisible(clientRectangles[i], frameDimensions, isVwm)) {
                 visibilityPercentage = shouldCalculateVisibilityPercentage
-                    ? measureVisibilityPercentageByRectangles(clientRectangles, i)
+                    ? measureVisibilityPercentageByRectangles(clientRectangles, frameDimensions, i)
                     : 100;
                 break;
             }
@@ -249,7 +249,7 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
      * @returns {number} - visibility percentage (0 < n <= 100)
      */
     function measureVisibilityPercentageByRectangles(
-        clientRectangles, firstVisibleRectIndex) {
+        clientRectangles, frameDimensions, firstVisibleRectIndex) {
 
         var heightTotal = 0;
         var heightVisible = 0;
@@ -269,6 +269,9 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
             heightTotal   = clientRectangles[0].height;
             heightVisible = clientRectangles[0].height - Math.max(
                 0, -clientRectangles[0].top);
+            if (clientRectangles[0].bottom > frameDimensions.height) {
+                heightVisible = clientRectangles[0].height - (clientRectangles[0].bottom - frameDimensions.height);
+            }
         }
         return heightVisible === heightTotal
             ? 100 // trivial case: element is 100% visible
@@ -565,14 +568,6 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
         }
         var iframeDoc = $iframe[0].contentDocument;
 
-        // caretRangeFromPoint works based on viewport, so we need to
-        // update ours temporarily to our current page offset
-        if (iframeDoc.caretRangeFromPoint) {
-            var offset = Math.abs(parseInt($('html', iframeDoc).css('left')));
-            $('html', iframeDoc).css('left', '0');
-            $iframe[0].contentWindow.scrollTo(offset, 0);
-        }
-
         // Now we can get a proper range value
         var i = 0;
         var range;
@@ -580,12 +575,6 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
             range = this.compatibleCaretRangeFromPoint($iframe[0].contentDocument, i, i);
             i++;
         } while ($(range.startContainer).is('html') || $(range.startContainer).is('body'));
-
-        if (iframeDoc.caretRangeFromPoint) {
-            // Reset viewport so Readium doesn't freak out
-            $iframe[0].contentWindow.scrollTo(0, 0);
-            $('html', iframeDoc).css('left', '-'+offset+'px');
-        }
 
         var node = (range) ? range.startContainer : null;
         var offset = (range) ? range.startOffset : 0;
@@ -595,71 +584,63 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
         return {$element: $(node), percentY: percentOfElementHeight, textOffset: offset };
     };
 
-    this.findLastVisibleNodeWithTextOffset = function (leftOffset) {
+    this.findLastVisibleElement = function (props) {
+
+        if (typeof props !== 'object') {
+            // compatibility with legacy code, `props` is `topOffset` actually
+            props = { top: props };
+        }
 
         var $elements;
         var $lastVisibleTextNode = null;
         var percentOfElementHeight = 0;
         var characterOffset = 0;
-        var viewportWidth = $('html', $iframe[0].contentDocument).width();
         var self = this;
 
-        /* get all elements (including text nodes), then filter only text nodes and image nodes and reverse the list */
-        $elements = $($("body", this.getRootElement()).find("*").contents().andSelf().filter(function () {
-            return this.nodeType === Node.TEXT_NODE || this.nodeName.toLowerCase() === 'img';
-        }).get().reverse());
+        $elements = $("body", this.getRootElement()).find("*").contents().andSelf().filter(function () {
+            return isValidTextNode(this) || this.nodeName.toLowerCase() === 'img';
+        }).get().reverse();
 
-        /* Find the last visible text node */
-        $.each($elements, function () {
+        // Find the first visible text node
+        $.each($elements, function() {
+
             var $element;
 
-            if (this.nodeType === Node.TEXT_NODE) {
-                /* Heuristic to find a text node with actual text */
-                var nodeText = this.nodeValue.replace(/\n/g, "");
-                nodeText = nodeText.replace(/\t/g, "");
-                nodeText = nodeText.replace(/ /g, "");
-
-                if (nodeText.length > 0) {
-                    $element = $(this).parent();
-                } else {
-                    return true;
-                }
-            } else {
-                $element = $(this);
+            if(this.nodeType === Node.TEXT_NODE)  { //text node
+                $element = $(this).parent();
+            }
+            else {
+                $element = $(this); //image
             }
 
-            var elementRect = ReadiumSDK.Helpers.Rect.fromElement($element);
-
-            if (elementRect.left >= leftOffset && (elementRect.left < leftOffset + viewportWidth || elementRect.top < 0)) {
-
-                $lastVisibleTextNode = $(this);
-
-                /* if the entire element is visible, use the last offset */
-                if (elementRect.top >= 0) {
-                    characterOffset = $lastVisibleTextNode[0].length;
-                    percentOfElementHeight = 100;
-                } else {
-                    characterOffset = 0;
-                    if (this.nodeType === Node.TEXT_NODE) {
-                        /* find the character offset that is first visible */
-                        characterOffset = self.findLastVisibleTextOffset($element, $lastVisibleTextNode, leftOffset);
+            var visibilityResult = visibilityCheckerFunc($element, props, true);
+            if (visibilityResult) {
+                characterOffset = 0;
+                $lastVisibleTextNode = $element;
+                if (this.nodeType === Node.TEXT_NODE) {
+                    /* find the character offset that is first visible */
+                    $lastVisibleTextNode = $(this);
+                    if (visibilityResult == 100) {
+                        characterOffset = 0;
                     }
-
-                    if (elementRect.top < 0) {
-                        percentOfElementHeight = Math.ceil((-elementRect.top / elementRect.height) * 100);
-                    } else {
-                        percentOfElementHeight = 100;
+                    characterOffset = self.findLastVisibleTextOffset($element, $lastVisibleTextNode, props);
+                    if (characterOffset == this.nodeValue.length) {
+                        // none of the content of this text node was visible
+                        return true;
                     }
                 }
 
-                /* Break the loop */
+                percentOfElementHeight = 100 - visibilityResult;
                 return false;
             }
-
             return true;
         });
 
         return {$element: $lastVisibleTextNode, percentY: percentOfElementHeight, textOffset: characterOffset};
+    };
+
+    this.findLastVisibleNodeWithTextOffset = function (leftOffset) {
+        return this.findLastVisibleElement(leftOffset);
     };
 
     this.findFirstVisibleTextOffset = function ($element, $textNode, props) {
@@ -703,8 +684,45 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
         return textOffset;
     };
 
-    this.findLastVisibleTextOffset = function ($element, $textNode, leftOffset) {
-        this.findFirstVisibleTextOffset($element, $textNode, leftOffset);
+    this.findLastVisibleTextOffset = function ($element, $textNode, props) {
+        var $workingCopy = $element.clone();
+        /* use our working copy */
+        $element.replaceWith($workingCopy);
+
+        var text = $textNode[0].nodeValue;
+
+        /* remove anything after $textNode in our working copy */
+        var textNodeIndex = $element.contents().index($textNode);
+
+        /* remove text one word at a time until $element is 100% visible */
+        var words = text.split(' ');
+        var size = words.length;
+        var i = size;
+        var textOffset = text.length;
+        var $currentTextNode = $workingCopy.contents().eq(textNodeIndex);
+        if ($workingCopy.contents().length > textNodeIndex + 1) {
+            $workingCopy.contents().slice(textNodeIndex + 1).remove();
+        }
+        var $tempTextNode;
+        var maxHeight = $('html', $iframe[0].contentDocument).height();
+        for (; i >= 0; i--) {
+            var newText = words.slice(0, i + 1).join(' ');
+            $tempTextNode = $(document.createTextNode(newText));
+            $currentTextNode.replaceWith($tempTextNode);
+            $currentTextNode = $tempTextNode;
+
+            var visibilityResult = visibilityCheckerFunc($workingCopy, props, true);
+            if (visibilityResult == 100) {
+                break;
+            }
+            textOffset = newText.length;
+        }
+        while (text.charAt(textOffset) == ' ') textOffset++;
+
+        /* replace our original text */
+        $workingCopy.replaceWith($element);
+
+        return textOffset;
     };
 
     this.getFirstVisibleTextOffsetCfi = function (props) {
@@ -757,6 +775,11 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
     this.getFirstVisibleElementCfi = function (leftOffset) {
 
         return this.getFirstVisibleTextOffsetCfi(leftOffset);
+    };
+
+    this.getLastVisibleElementCfi = function (leftOffset) {
+
+        return this.getLastVisibleTextOffsetCfi(leftOffset);
     };
 
     this.isElementCfiVisible = function (elementCfi, currentPage) {
@@ -876,16 +899,16 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
         elementRect.left = offset.left;
         elementRect.top = offset.top;
         var bodyOffset = $('body', $iframe[0].contentDocument).offset();
-        elementRect.left -= bodyOffset.left;
+        //elementRect.left -= bodyOffset.left;
         var posInElement = Math.ceil(elementRect.top + y * elementRect.height / 100);
 
         var $columnDiv = $('html', $iframe[0].contentDocument);
         //var columnWidth = $columnDiv.width() + options.paginationInfo.columnGap;
         var columnHeight = $columnDiv.height();
-        var columnWidth = $columnDiv.width();
+        var columnWidth = $columnDiv.width() / 2;
         var rectHeight = elementRect.top / columnHeight;
         var gap = options.paginationInfo.columnGap;
-        var rectWidth = elementRect.left / (columnWidth + gap);
+        var rectWidth = elementRect.left / columnWidth;
         var column = rectHeight;
         if (elementRect.left > columnWidth) {
             column = rectWidth;
