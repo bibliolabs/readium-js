@@ -80,7 +80,7 @@ window.EPUBcfi = undefined;
 
     require(['epubViewerApi'], function(epubViewerApi) {
         //window.onReaderLoad(epubViewerApi);
-        window.epubViewerApi = epubViewerApi;
+        window.EpubViewerApi = epubViewerApi;
     });
 
 })();
