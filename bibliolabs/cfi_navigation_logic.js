@@ -905,7 +905,7 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
         var $columnDiv = $('html', $iframe[0].contentDocument);
         //var columnWidth = $columnDiv.width() + options.paginationInfo.columnGap;
         var columnHeight = $columnDiv.height();
-        var columnWidth = $columnDiv.width() / 2;
+        var columnWidth = options.paginationInfo.columnWidth;
         var rectHeight = elementRect.top / columnHeight;
         var gap = options.paginationInfo.columnGap;
         var rectWidth = elementRect.left / columnWidth;
@@ -923,7 +923,7 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
             column++;
         }
 
-        return column;
+        return options.paginationInfo.currentSpreadIndex * options.paginationInfo.visibleColumnCount + column;
     };
 
     this.getPageForElementId = function (id) {
