@@ -482,6 +482,20 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
 
     }
 
+    this.getElementById = function(id) {
+
+        var contentDoc = $iframe[0].contentDocument;
+
+        var $element = $(contentDoc.getElementById(id));
+        //$("#" + ReadiumSDK.Helpers.escapeJQuerySelector(id), contentDoc);
+        
+        if($element.length == 0) {
+            return undefined;
+        }
+
+        return $element;
+    };
+
     /* we look for text and images */
     this.findFirstVisibleElement = function (props) {
 
