@@ -712,10 +712,10 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
             $currentTextNode = $tempTextNode;
 
             var visibilityResult = visibilityCheckerFunc($workingCopy, props, true);
+            textOffset = newText.length;
             if (visibilityResult == 100) {
                 break;
             }
-            textOffset = newText.length;
         }
         while (text.charAt(textOffset) == ' ') textOffset++;
 
