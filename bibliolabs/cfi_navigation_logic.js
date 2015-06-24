@@ -654,7 +654,27 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
     };
 
     this.findLastVisibleNodeWithTextOffset = function (leftOffset) {
-        return this.findLastVisibleElement(leftOffset);
+        if (!this.hasCaretRangeFromPoint()) {
+            return this.findLastVisibleElement(leftOffset);
+        }
+        var iframeDoc = $iframe[0].contentDocument;
+        
+        // Now we can get a proper range value
+        var i = 0;
+        var range; 
+        var frameWidth = $("html", iframeDoc).width();
+        var frameHeight = $("html", iframeDoc).height();
+        do {
+            range = this.compatibleCaretRangeFromPoint(iframeDoc, frameWidth - i, frameHeight - i);
+            i++;
+        } while (!range || $(range.startContainer).is('html') || $(range.startContainer).is('body'));
+
+        var node = (range) ? range.startContainer : null;
+        var offset = (range) ? range.startOffset : 0;
+        var elementRect = (node) ? ReadiumSDK.Helpers.Rect.fromElement($(node.parentNode)) : null;
+        var percentOfElementHeight = (elementRect) ? Math.ceil((-elementRect.top / elementRect.height) * 100) : 0;
+
+        return {$element: $(node), percentY: percentOfElementHeight, textOffset: offset };
     };
 
     this.findFirstVisibleTextOffset = function ($element, $textNode, props) {
