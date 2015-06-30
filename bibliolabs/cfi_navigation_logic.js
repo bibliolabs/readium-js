@@ -589,7 +589,7 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
         // Now we can get a proper range value
         var i = 0;
         var range, frameWidth, frameHeight;
-        if (fromStart) {
+        if (!fromStart) {
             frameWidth = $("html", iframeDoc).width();
             frameHeight = $("html", iframeDoc).height();
         }
