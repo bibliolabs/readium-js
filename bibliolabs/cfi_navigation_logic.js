@@ -569,8 +569,10 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
         // standard
         if (doc.caretPositionFromPoint) {
             range = doc.caretPositionFromPoint(x, y);
-            range.startContainer = range.offsetNode;
-            range.startOffset = range.offset;
+            if (range) {
+                range.startContainer = range.offsetNode;
+                range.startOffset = range.offset;
+            }
 
             // WebKit
         } else if (doc.caretRangeFromPoint) {
