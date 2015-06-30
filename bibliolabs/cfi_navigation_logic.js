@@ -562,6 +562,10 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
         var textNode;
         var offset;
 
+        if (!doc) {
+            return null;
+        }
+
         // standard
         if (doc.caretPositionFromPoint) {
             range = doc.caretPositionFromPoint(x, y);
@@ -576,7 +580,7 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
         return range;
     };
 
-    this.findFirstVisibleNodeWithTextOffset = function (leftOffset) {
+    this.findVisibleNodeWithTextOffset = function(fromStart) {
         if (!this.hasCaretRangeFromPoint()) {
             return this.findFirstVisibleElement(leftOffset);
         }
@@ -584,11 +588,24 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
 
         // Now we can get a proper range value
         var i = 0;
-        var range;
+        var range, frameWidth, frameHeight;
+        if (fromStart) {
+            frameWidth = $("html", iframeDoc).width();
+            frameHeight = $("html", iframeDoc).height();
+        }
         do {
-            range = this.compatibleCaretRangeFromPoint($iframe[0].contentDocument, i, i);
+            var posX, posY;
+            if (fromStart) {
+                posX = i;
+                posY = i;
+            } else {
+                posX = frameWidth - i;
+                posY = frameHeight - i;
+            }
+
+            range = this.compatibleCaretRangeFromPoint($iframe[0].contentDocument, posX, posY);
             i++;
-        } while ($(range.startContainer).is('html') || $(range.startContainer).is('body'));
+        } while (!range || $(range.startContainer).is('html') || $(range.startContainer).is('body'));
 
         var node = (range) ? range.startContainer : null;
         var offset = (range) ? range.startOffset : 0;
@@ -596,6 +613,10 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
         var percentOfElementHeight = (elementRect) ? Math.ceil((-elementRect.top / elementRect.height) * 100) : 0;
 
         return {$element: $(node), percentY: percentOfElementHeight, textOffset: offset };
+    }
+
+    this.findFirstVisibleNodeWithTextOffset = function (leftOffset) {
+        return this.findVisibleNodeWithTextOffset(true);
     };
 
     this.findLastVisibleElement = function (props) {
@@ -654,27 +675,7 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
     };
 
     this.findLastVisibleNodeWithTextOffset = function (leftOffset) {
-        if (!this.hasCaretRangeFromPoint()) {
-            return this.findLastVisibleElement(leftOffset);
-        }
-        var iframeDoc = $iframe[0].contentDocument;
-        
-        // Now we can get a proper range value
-        var i = 0;
-        var range; 
-        var frameWidth = $("html", iframeDoc).width();
-        var frameHeight = $("html", iframeDoc).height();
-        do {
-            range = this.compatibleCaretRangeFromPoint(iframeDoc, frameWidth - i, frameHeight - i);
-            i++;
-        } while (!range || $(range.startContainer).is('html') || $(range.startContainer).is('body'));
-
-        var node = (range) ? range.startContainer : null;
-        var offset = (range) ? range.startOffset : 0;
-        var elementRect = (node) ? ReadiumSDK.Helpers.Rect.fromElement($(node.parentNode)) : null;
-        var percentOfElementHeight = (elementRect) ? Math.ceil((-elementRect.top / elementRect.height) * 100) : 0;
-
-        return {$element: $(node), percentY: percentOfElementHeight, textOffset: offset };
+        return this.findVisibleNodeWithTextOffset(false);
     };
 
     this.findFirstVisibleTextOffset = function ($element, $textNode, props) {
