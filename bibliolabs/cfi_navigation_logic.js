@@ -582,7 +582,7 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
         return range;
     };
 
-    this.findVisibleNodeWithTextOffset = function(fromStart) {
+    this.findVisibleNodeWithTextOffset = function(fromStart, leftOffset) {
         if (!this.hasCaretRangeFromPoint()) {
             return this.findFirstVisibleElement(leftOffset);
         }
@@ -618,7 +618,7 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
     }
 
     this.findFirstVisibleNodeWithTextOffset = function (leftOffset) {
-        return this.findVisibleNodeWithTextOffset(true);
+        return this.findVisibleNodeWithTextOffset(true, leftOffset);
     };
 
     this.findLastVisibleElement = function (props) {
@@ -677,7 +677,7 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
     };
 
     this.findLastVisibleNodeWithTextOffset = function (leftOffset) {
-        return this.findVisibleNodeWithTextOffset(false);
+        return this.findVisibleNodeWithTextOffset(false, leftOffset);
     };
 
     this.findFirstVisibleTextOffset = function ($element, $textNode, props) {
