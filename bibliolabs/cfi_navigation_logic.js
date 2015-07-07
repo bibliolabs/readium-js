@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * Override CfiNavigationLogic for text offset cfis
  * Created by mwu on 3/13/15.
@@ -7,13 +9,11 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
     options = options || {};
 
     this.getRootElement = function(){
-
         return $iframe[0].contentDocument.documentElement;
     };
 
-    var visibilityCheckerFunc = options.rectangleBased
-        ? checkVisibilityByRectangles
-        : checkVisibilityByVerticalOffsets;
+    var visibilityCheckerFunc = options.rectangleBased ? checkVisibilityByRectangles
+      : checkVisibilityByVerticalOffsets;
 
     /**
      * @private
@@ -59,9 +59,7 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
      * @returns {number} Full width of a column in pixels
      */
     function getColumnFullWidth() {
-
-        if (!options.paginationInfo || isVerticalWritingMode())
-        {
+        if (!options.paginationInfo || isVerticalWritingMode()) {
             return $iframe.width();
         }
 
@@ -76,17 +74,17 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
      *
      * @returns {Object}
      */
-    function getVisibleContentOffsets() {
-        if(isVerticalWritingMode()){
-            return {
-                top: (options.paginationInfo ? options.paginationInfo.pageOffset : 0)
-            };
-        }
-        return {
-            left: (options.paginationInfo ? options.paginationInfo.pageOffset : 0)
-                * (isPageProgressionRightToLeft() ? -1 : 1)
-        };
-    }
+    // function getVisibleContentOffsets() {
+    //     if(isVerticalWritingMode()){
+    //         return {
+    //             top: (options.paginationInfo ? options.paginationInfo.pageOffset : 0)
+    //         };
+    //     }
+    //     return {
+    //         left: (options.paginationInfo ? options.paginationInfo.pageOffset : 0) *
+    //           (isPageProgressionRightToLeft() ? -1 : 1)
+    //     };
+    // }
 
     // Old (offsetTop-based) algorithm, useful in top-to-bottom layouts
     function checkVisibilityByVerticalOffsets(
@@ -100,8 +98,8 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
         }
         var topOffset = visibleContentOffsets.top || 0;
         var isBelowVisibleTop = elementRect.bottom() > topOffset;
-        var isAboveVisibleBottom = visibleContentOffsets.bottom !== undefined
-            ? elementRect.top < visibleContentOffsets.bottom
+        var isAboveVisibleBottom = visibleContentOffsets.bottom !== undefined ?
+          elementRect.top < visibleContentOffsets.bottom
             : true; //this check always passed, if corresponding offset isn't set
 
         var percentOfElementHeight = 0;
@@ -173,8 +171,8 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
         var visibilityPercentage = 0;
         for (var i = 0, l = clientRectangles.length; i < l; ++i) {
             if (isRectVisible(clientRectangles[i], frameDimensions, isVwm)) {
-                visibilityPercentage = shouldCalculateVisibilityPercentage
-                    ? measureVisibilityPercentageByRectangles(clientRectangles, frameDimensions, i)
+                visibilityPercentage = shouldCalculateVisibilityPercentage ?
+                  measureVisibilityPercentageByRectangles(clientRectangles, frameDimensions, i)
                     : 100;
                 break;
             }
@@ -190,55 +188,55 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
      * @param {number} spatialVerticalOffset
      * @returns {number|null}
      */
-    function findPageByRectangles($element, spatialVerticalOffset) {
-        var visibleContentOffsets = getVisibleContentOffsets();
-        var elementRectangles = getNormalizedRectangles($element, visibleContentOffsets);
-        var clientRectangles  = elementRectangles.clientRectangles;
-        if (clientRectangles.length === 0) { // elements with display:none, etc.
-            return null;
-        }
-
-        var isRtl = isPageProgressionRightToLeft();
-        var isVwm = isVerticalWritingMode();
-        var columnFullWidth = getColumnFullWidth();
-
-        var frameHeight = $iframe.height();
-        var frameWidth  = $iframe.width();
-
-        if (spatialVerticalOffset) {
-            trimRectanglesByVertOffset(clientRectangles, spatialVerticalOffset,
-                frameHeight, columnFullWidth, isRtl, isVwm);
-        }
-
-        var firstRectangle = _.first(clientRectangles);
-        if (clientRectangles.length === 1) {
-            adjustRectangle(firstRectangle, {
-                height: frameHeight, width: frameWidth
-            }, columnFullWidth, isRtl, isVwm);
-        }
-
-        var pageIndex;
-
-        if (isVwm) {
-            var topOffset = firstRectangle.top;
-            pageIndex = Math.floor(topOffset / frameHeight);
-        } else {
-            var leftOffset = firstRectangle.left;
-            if (isRtl) {
-                leftOffset = (columnFullWidth * (options.paginationInfo ? options.paginationInfo.visibleColumnCount : 1)) - leftOffset;
-            }
-            pageIndex = Math.floor(leftOffset / columnFullWidth);
-        }
-
-        if (pageIndex < 0) {
-            pageIndex = 0;
-        }
-        else if (pageIndex >= (options.paginationInfo ? options.paginationInfo.columnCount : 1)) {
-            pageIndex = (options.paginationInfo ? (options.paginationInfo.columnCount - 1) : 0);
-        }
-
-        return pageIndex;
-    }
+    // function findPageByRectangles($element, spatialVerticalOffset) {
+    //     var visibleContentOffsets = getVisibleContentOffsets();
+    //     var elementRectangles = getNormalizedRectangles($element, visibleContentOffsets);
+    //     var clientRectangles  = elementRectangles.clientRectangles;
+    //     if (clientRectangles.length === 0) { // elements with display:none, etc.
+    //         return null;
+    //     }
+    //
+    //     var isRtl = isPageProgressionRightToLeft();
+    //     var isVwm = isVerticalWritingMode();
+    //     var columnFullWidth = getColumnFullWidth();
+    //
+    //     var frameHeight = $iframe.height();
+    //     var frameWidth  = $iframe.width();
+    //
+    //     if (spatialVerticalOffset) {
+    //         trimRectanglesByVertOffset(clientRectangles, spatialVerticalOffset,
+    //             frameHeight, columnFullWidth, isRtl, isVwm);
+    //     }
+    //
+    //     var firstRectangle = _.first(clientRectangles);
+    //     if (clientRectangles.length === 1) {
+    //         adjustRectangle(firstRectangle, {
+    //             height: frameHeight, width: frameWidth
+    //         }, columnFullWidth, isRtl, isVwm);
+    //     }
+    //
+    //     var pageIndex;
+    //
+    //     if (isVwm) {
+    //         var topOffset = firstRectangle.top;
+    //         pageIndex = Math.floor(topOffset / frameHeight);
+    //     } else {
+    //         var leftOffset = firstRectangle.left;
+    //         if (isRtl) {
+    //             leftOffset = (columnFullWidth * (options.paginationInfo ? options.paginationInfo.visibleColumnCount : 1)) - leftOffset;
+    //         }
+    //         pageIndex = Math.floor(leftOffset / columnFullWidth);
+    //     }
+    //
+    //     if (pageIndex < 0) {
+    //         pageIndex = 0;
+    //     }
+    //     else if (pageIndex >= (options.paginationInfo ? options.paginationInfo.columnCount : 1)) {
+    //         pageIndex = (options.paginationInfo ? (options.paginationInfo.columnCount - 1) : 0);
+    //     }
+    //
+    //     return pageIndex;
+    // }
 
     /**
      * @private
@@ -273,8 +271,8 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
                 heightVisible = clientRectangles[0].height - (clientRectangles[0].bottom - frameDimensions.height);
             }
         }
-        return heightVisible === heightTotal
-            ? 100 // trivial case: element is 100% visible
+        return heightVisible === heightTotal ?
+          100 // trivial case: element is 100% visible
             : Math.floor(100 * heightVisible / heightTotal);
     }
 
@@ -430,56 +428,47 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
      * @param {boolean} isRtl
      * @param {boolean} isVwm               isVerticalWritingMode
      */
-    function trimRectanglesByVertOffset(
-        rects, verticalOffset, frameHeight, columnFullWidth, isRtl, isVwm) {
-
-        //TODO: Support vertical writing mode
-        if (isVwm) {
-            return;
-        }
-
-        var totalHeight = _.reduce(rects, function(prev, cur) {
-            return prev + cur.height;
-        }, 0);
-
-        var heightToHide = totalHeight * verticalOffset / 100;
-        if (rects.length > 1) {
-            var heightAccum = 0;
-            do {
-                heightAccum += rects[0].height;
-                if (heightAccum > heightToHide) {
-                    break;
-                }
-                rects.shift();
-            } while (rects.length > 1);
-        }
-        else {
-            // rebase to the last possible column
-            // (so that adding to top will be properly processed later)
-            if (isRtl) {
-                columnFullWidth *= -1;
-            }
-            while (rects[0].bottom >= frameHeight) {
-                offsetRectangle(rects[0], columnFullWidth, -frameHeight);
-            }
-
-            rects[0].top += heightToHide;
-            rects[0].height -= heightToHide;
-        }
-    }
+    // function trimRectanglesByVertOffset(
+    //     rects, verticalOffset, frameHeight, columnFullWidth, isRtl, isVwm) {
+    //
+    //     //TODO: Support vertical writing mode
+    //     if (isVwm) {
+    //         return;
+    //     }
+    //
+    //     var totalHeight = _.reduce(rects, function(prev, cur) {
+    //         return prev + cur.height;
+    //     }, 0);
+    //
+    //     var heightToHide = totalHeight * verticalOffset / 100;
+    //     if (rects.length > 1) {
+    //         var heightAccum = 0;
+    //         do {
+    //             heightAccum += rects[0].height;
+    //             if (heightAccum > heightToHide) {
+    //                 break;
+    //             }
+    //             rects.shift();
+    //         } while (rects.length > 1);
+    //     }
+    //     else {
+    //         // rebase to the last possible column
+    //         // (so that adding to top will be properly processed later)
+    //         if (isRtl) {
+    //             columnFullWidth *= -1;
+    //         }
+    //         while (rects[0].bottom >= frameHeight) {
+    //             offsetRectangle(rects[0], columnFullWidth, -frameHeight);
+    //         }
+    //
+    //         rects[0].top += heightToHide;
+    //         rects[0].height -= heightToHide;
+    //     }
+    // }
 
     function isValidTextNode(node) {
-
-        if(node.nodeType === Node.TEXT_NODE) {
-
-            // Heuristic to find a text node with actual text
-            var nodeText = node.nodeValue.trim();
-
-            return nodeText.length > 0;
-        }
-
-        return false;
-
+      return node.nodeType === Node.TEXT_NODE &&
+              node.nodeValue.trim().length > 0;
     }
 
     this.getElementById = function(id) {
@@ -488,8 +477,8 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
 
         var $element = $(contentDoc.getElementById(id));
         //$("#" + ReadiumSDK.Helpers.escapeJQuerySelector(id), contentDoc);
-        
-        if($element.length == 0) {
+
+        if($element.length === 0) {
             return undefined;
         }
 
@@ -558,42 +547,43 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
     };
 
     this.compatibleCaretRangeFromPoint = function(doc, x, y) {
-        var range;
-        var textNode;
-        var offset;
-
         if (!doc) {
             return null;
         }
 
+        var caretPosition;
+
         // standard
         if (doc.caretPositionFromPoint) {
-            range = doc.caretPositionFromPoint(x, y);
-            if (range) {
-                range.startContainer = range.offsetNode;
-                range.startOffset = range.offset;
-            }
-
-            // WebKit
+            caretPosition = doc.caretPositionFromPoint(x, y);
         } else if (doc.caretRangeFromPoint) {
-            range = doc.caretRangeFromPoint(x, y);
+            // WebKit
+            caretPosition = doc.caretRangeFromPoint(x, y);
+            if (caretPosition) {
+                caretPosition.offsetNode = caretPosition.startContainer;
+                caretPosition.offset = caretPosition.startOffset;
+            }
         }
 
-        return range;
+        return caretPosition;
     };
 
-    this.findVisibleNodeWithTextOffset = function(fromStart, leftOffset) {
+    this.findVisibleNodeWithTextOffset = function(doc, fromStart, leftOffset) {
+        // this needs to be moved
         if (!this.hasCaretRangeFromPoint()) {
+          if (fromStart) {
             return this.findFirstVisibleElement(leftOffset);
+          } else {
+            return this.findLastVisibleElement(leftOffset);
+          }
         }
-        var iframeDoc = $iframe[0].contentDocument;
 
         // Now we can get a proper range value
-        var i = 0;
-        var range, frameWidth, frameHeight;
+        var i = 1;
+        var caretPosition, frameWidth, frameHeight;
         if (!fromStart) {
-            frameWidth = $("html", iframeDoc).width();
-            frameHeight = $("html", iframeDoc).height();
+            frameWidth = $("html", doc).width();
+            frameHeight = $("html", doc).height();
         }
         do {
             var posX, posY;
@@ -605,20 +595,24 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
                 posY = frameHeight - i;
             }
 
-            range = this.compatibleCaretRangeFromPoint($iframe[0].contentDocument, posX, posY);
+            caretPosition = this.compatibleCaretRangeFromPoint(doc, posX, posY);
             i++;
-        } while (!range || $(range.startContainer).is('html') || $(range.startContainer).is('body'));
+            // (MDA) See below - why check html and body here, but look for non-empty text nodes and imgs below?
+        } while (caretPosition && ($(caretPosition.offsetNode).is('html') || $(caretPosition.offsetNode).is('body')));
 
-        var node = (range) ? range.startContainer : null;
-        var offset = (range) ? range.startOffset : 0;
+        console.log("Caret position found: ", caretPosition, fromStart);
+
+        var node = (caretPosition) ? caretPosition.offsetNode : null;
+        var offset = (caretPosition) ? caretPosition.offset : 0;
         var elementRect = (node) ? ReadiumSDK.Helpers.Rect.fromElement($(node.parentNode)) : null;
         var percentOfElementHeight = (elementRect) ? Math.ceil((-elementRect.top / elementRect.height) * 100) : 0;
 
         return {$element: $(node), percentY: percentOfElementHeight, textOffset: offset };
-    }
+    };
 
     this.findFirstVisibleNodeWithTextOffset = function (leftOffset) {
-        return this.findVisibleNodeWithTextOffset(true, leftOffset);
+        var iframeDoc = $iframe[0].contentDocument;
+        return this.findVisibleNodeWithTextOffset(iframeDoc, true, leftOffset);
     };
 
     this.findLastVisibleElement = function (props) {
@@ -677,7 +671,8 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
     };
 
     this.findLastVisibleNodeWithTextOffset = function (leftOffset) {
-        return this.findVisibleNodeWithTextOffset(false, leftOffset);
+        var iframeDoc = $iframe[0].contentDocument;
+        return this.findVisibleNodeWithTextOffset(iframeDoc, false, leftOffset);
     };
 
     this.findFirstVisibleTextOffset = function ($element, $textNode, props) {
@@ -700,7 +695,6 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
             $workingCopy.contents().slice(textNodeIndex + 1).remove();
         }
         var $tempTextNode;
-        var maxHeight = $('html', $iframe[0].contentDocument).height();
         for (; i < size; i++) {
             var newText = words.slice(0, i + 1).join(' ');
             $tempTextNode = $(document.createTextNode(newText));
@@ -741,7 +735,6 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
             $workingCopy.contents().slice(textNodeIndex + 1).remove();
         }
         var $tempTextNode;
-        var maxHeight = $('html', $iframe[0].contentDocument).height();
         for (; i >= 0; i--) {
             var newText = words.slice(0, i + 1).join(' ');
             $tempTextNode = $(document.createTextNode(newText));
@@ -765,7 +758,7 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
     this.getFirstVisibleTextOffsetCfi = function (props) {
         var resultData = this.findFirstVisibleNodeWithTextOffset(props);
 
-        if (!resultData.$element) {
+        if (!resultData.$element || resultData.$element.size() === 0) {
             console.log("Could not generate CFI. The page has no visible elements.");
             return undefined;
         }
@@ -789,7 +782,7 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
     this.getLastVisibleTextOffsetCfi = function (props) {
         var resultData = this.findLastVisibleNodeWithTextOffset(props);
 
-        if (!resultData.$element) {
+        if (!resultData.$element || resultData.$element.size() === 0) {
             console.log("Could not generate CFI. The page has no visible elements.");
             return undefined;
         }
@@ -810,12 +803,10 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
     };
 
     this.getFirstVisibleElementCfi = function (leftOffset) {
-
         return this.getFirstVisibleTextOffsetCfi(leftOffset);
     };
 
     this.getLastVisibleElementCfi = function (leftOffset) {
-
         return this.getLastVisibleTextOffsetCfi(leftOffset);
     };
 
@@ -855,8 +846,8 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
                 bookmark.context = "[image]";
             }
         } else if (cfiData.elementData) {
-            textData = cfiData.elementData.$element.text();
-            element = cfiData.elementData.$element[0].nextSibling;
+            var textData = cfiData.elementData.$element.text();
+            var element = cfiData.elementData.$element[0].nextSibling;
             while (element) {
                 if (element.nodeType === 3) {
                     textData += element.nodeValue;
@@ -883,14 +874,11 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
         if ($element[0].nodeType === Node.TEXT_NODE) {
             var $injectElement = $("<span>-</span>");
             EPUBcfi.injectElementAtOffset($element, cfiParts.chr, $injectElement);
-            var $parentElement = $element.parent();
-            var parentOffset = $parentElement.offset();
-
             $removeElement = $injectElement;
             $element = $injectElement;
         }
 
-        if (!$element || $element.length == 0) {
+        if (!$element || $element.length === 0) {
             console.log("Can't find element for CFI: " + cfi);
             return undefined;
         }
@@ -914,7 +902,7 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
         //noinspection JSUnresolvedVariable
         var $element = EPUBcfi.getTargetElementWithPartialCFI(wrappedCfi, contentDoc, classBlacklist, elementBlacklist, idBlacklist);
 
-        if(!$element || $element.length == 0) {
+        if(!$element || $element.length === 0) {
             console.log("Can't find element for CFI: " + cfi);
             return undefined;
         }
@@ -928,23 +916,21 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
         return getElementByPartialCfi(cfiParts.cfi, classBlacklist, elementBlacklist, idBlacklist);
     };
 
+    // (MDA) After removing unused vars below x,y is no longer used - clean up
     this.getPageForElement = function ($element, x, y) {
 
         var elementRect = ReadiumSDK.Helpers.Rect.fromElement($element);
         // For some reason Readium can get confused here. jQuery reports the right values
+        // (MDA) What is wrong with readium? Why make the call here at all then if it's broken??
         var offset = $element.offset();
         elementRect.left = offset.left;
         elementRect.top = offset.top;
-        var bodyOffset = $('body', $iframe[0].contentDocument).offset();
-        //elementRect.left -= bodyOffset.left;
-        var posInElement = Math.ceil(elementRect.top + y * elementRect.height / 100);
 
         var $columnDiv = $('html', $iframe[0].contentDocument);
         //var columnWidth = $columnDiv.width() + options.paginationInfo.columnGap;
         var columnHeight = $columnDiv.height();
         var columnWidth = options.paginationInfo.columnWidth;
         var rectHeight = elementRect.top / columnHeight;
-        var gap = options.paginationInfo.columnGap;
         var rectWidth = elementRect.left / columnWidth;
         var column = rectHeight;
         if (elementRect.left > columnWidth) {
@@ -966,7 +952,7 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
     this.getPageForElementId = function (id) {
 
         var $element = $("#" + id);
-        if ($element.length == 0) {
+        if ($element.length === 0) {
             return -1;
         }
 
@@ -984,9 +970,9 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
 
         var ix = cfi.indexOf("@");
         var chrOffsetIx = cfi.indexOf(":");
-
+        var terminus;
         if (ix != -1) {
-            var terminus = cfi.substring(ix + 1);
+            terminus = cfi.substring(ix + 1);
 
             var colIx = terminus.indexOf(":");
             if (colIx != -1) {
@@ -1000,7 +986,7 @@ ReadiumSDK.Views.CfiNavigationLogic = function ($viewport, $iframe, options) {
             ret.cfi = cfi.substring(0, ix);
         }
         else if (chrOffsetIx != -1) {
-            var terminus = cfi.substring(chrOffsetIx + 1);
+            terminus = cfi.substring(chrOffsetIx + 1);
             ret.chr = parseInt(terminus);
 
             ret.cfi = cfi.substring(0, chrOffsetIx);
