@@ -24,6 +24,8 @@ module.exports = function(grunt) {
     // Compile a list of paths and output files for our modules for requirejs to compile.
     // TODO: Translate the command-line code to this.
 
+    grunt.template.addDelimiters('squareBracketDelim', '[%', '%]');
+
     grunt.registerTask('versioning', function(){
 
         var done = this.async();
@@ -116,7 +118,6 @@ module.exports = function(grunt) {
     });
 
     grunt.initConfig({
-
         requirejs: {
             compile: {
                 options: {
@@ -135,13 +136,42 @@ module.exports = function(grunt) {
                 }
             }
         },
+        template: {
+            readium: {
+                options: {
+                    delimiters: 'squareBracketDelim',
+                    data: function() {
+                        var requirejsData = grunt.file.read('lib/require.js');
+                        var jqueryData = grunt.file.read('epub-modules/epub-renderer/src/readium-shared-js/lib/jquery.js');
+                        var jqueryXmlNamespaceData = grunt.file.read('bibliolabs/jquery_xml_namespace_duckpunches.js');
+                        var readerApiData = grunt.file.read('bibliolabs/EpubViewerApi.js');
+                        var underscoreData = grunt.file.read('lib/underscore-1.4.4.js');
+                        var backboneData = grunt.file.read('lib/backbone-0.9.10.js');
+                        var readiumData = grunt.file.read('out/Readium.js');
+                        return {
+                            requirejs: requirejsData,
+                            jquery: jqueryData,
+                            jquery_duckpunches: jqueryXmlNamespaceData,
+                            backbone: backboneData,
+                            underscore: underscoreData,
+                            readium: readiumData,
+                            readerApi: readerApiData
+                        };
+                    }
+                },
+                files: {
+                    'out/ReadiumFinal.js': ['bibliolabs/depsTemplate.tpl']
+                }
+            }
+        }
 
 
     });
     
 
     require('load-grunt-tasks')(grunt);
+    grunt.loadNpmTasks('grunt-template');
     
-    grunt.registerTask('default', ['versioning', 'requirejs']);
+    grunt.registerTask('default', ['versioning', 'requirejs', 'template']);
 
 };

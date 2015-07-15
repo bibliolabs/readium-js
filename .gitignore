@@ -33,3 +33,6 @@ version.json
 Session.vim
 .netrwhist
 *~
+
+### bibliolabs ###
+bibliolabs/EpubViewerApi.js
