@@ -59,6 +59,9 @@ define(['jquery', 'underscore', '../epub-fetch/markup_parser', 'URIjs', './packa
             _deferredXmlDom.done(function (xmlDom) {
                 var metadata = getMetadata(xmlDom);
 
+                // save the xmlDom for use with libraries (readium-cfi-js) that do not understand the parsed metadata
+                metadata.xmlDom = xmlDom;
+
                 var spineElem = xmlDom.getElementsByTagNameNS("*", "spine")[0];
                 var page_prog_dir = getElemAttr(xmlDom, 'spine', "page-progression-direction");
 

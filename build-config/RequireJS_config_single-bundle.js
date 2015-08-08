@@ -25,6 +25,10 @@ require.config({
         "readium_js/Readium"
     ],
 
+    exclude: [
+        "jquery"
+    ],
+
     paths:
     {
         "version":
