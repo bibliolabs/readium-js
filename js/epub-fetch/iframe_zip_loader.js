@@ -15,10 +15,11 @@ define(['URIjs', 'readium_shared_js/views/iframe_loader', 'underscore', './disco
 
     var zipIframeLoader = function( getCurrentResourceFetcher, contentDocumentTextPreprocessor) {
 
-        var isIE = (window.navigator.userAgent.indexOf("Trident") > 0 || 
-                window.navigator.userAgent.indexOf("Edge") > 0 ||
-                window.navigator.userAgent.indexOf("MSIE") > 0);
-            
+        var isIE = (window.navigator.userAgent.match('Trident') || 
+                window.navigator.userAgent.match('Edge') ||
+                window.navigator.userAgent.match('MSIE') ||
+                window.navigator.userAgent.match('CriOS'));
+
         var basicIframeLoader = new IFrameLoader();
 
         var self = this;
@@ -52,7 +53,13 @@ define(['URIjs', 'readium_shared_js/views/iframe_loader', 'underscore', './disco
                 
                 console.error("!iframe.baseURI => " + iframe.baseURI);
             }
-            
+
+            // this is checking for codova. The thought is that iframe security issues prevent loading
+            // the blob so cordova needs to follow the IE path always
+            if (iframe.baseURI.match('file:///')) {
+                isIE = true;
+            }
+
             console.log("EPUB doc iframe src:");
             console.log(src);
             iframe.setAttribute("data-src", src);
