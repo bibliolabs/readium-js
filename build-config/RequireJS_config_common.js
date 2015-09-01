@@ -52,6 +52,10 @@ require.config({
 
     paths:
     {
+        "jquery": "empty:",
+        "underscore": "empty:",
+        "backbone": "empty:",
+
         // ------ NPM MODULEs
 
         text:
