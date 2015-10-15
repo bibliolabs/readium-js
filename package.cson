@@ -294,30 +294,30 @@ scripts:
         &&
         npm run rimraf
             build-output/_multiple-bundles/z-worker.js
+'
 
+        # &&
+        # npm run cpy
+        #     build-output/_multiple-bundles/z-worker.js.map
+        #     build-output/
+        # &&
+        # npm run cpy
+        #     build-output/_multiple-bundles/deflate.js.map
+        #     build-output/
+        # &&
+        # npm run cpy
+        #     build-output/_multiple-bundles/inflate.js.map
+        #     build-output/
+        # &&
+        # npm run rimraf
+        #     build-output/_multiple-bundles/deflate.js.map
+        # &&
+        # npm run rimraf
+        #     build-output/_multiple-bundles/inflate.js.map
+        # &&
+        # npm run rimraf
+        #     build-output/_multiple-bundles/z-worker.js.map
 
-        &&
-        npm run cpy
-            build-output/_multiple-bundles/z-worker.js.map
-            build-output/
-        &&
-        npm run cpy
-            build-output/_multiple-bundles/deflate.js.map
-            build-output/
-        &&
-        npm run cpy
-            build-output/_multiple-bundles/inflate.js.map
-            build-output/
-        &&
-        npm run rimraf
-            build-output/_multiple-bundles/deflate.js.map
-        &&
-        npm run rimraf
-            build-output/_multiple-bundles/inflate.js.map
-        &&
-        npm run rimraf
-            build-output/_multiple-bundles/z-worker.js.map
-    '
 
 #=====================
     'build:scripts:multiple': '

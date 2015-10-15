@@ -17,7 +17,7 @@ define(['jquery', 'URIjs', './discover_content_type', 'zip-ext', 'readium_shared
 
         var ebookURL = parentFetcher.getEbookURL();
         var ebookURL_filepath = parentFetcher.getEbookURL_FilePath();
-        
+
         var _checkCrc32 = false;
         var _zipFs;
 
@@ -30,10 +30,10 @@ define(['jquery', 'URIjs', './discover_content_type', 'zip-ext', 'readium_shared
         // However, the last one to be set on the model object will prevail and others would be garbage collected later.
         function withZipFsPerform(callback, onerror) {
 
-                    // if (!(ebookURL instanceof Blob)) 
+                    // if (!(ebookURL instanceof Blob))
                     // {onerror("SIMULATING ZIP LIB ERROR...");
                     // return;}
-                    
+
             if (_zipFs) {
 
                 callback(_zipFs, onerror);
@@ -41,33 +41,33 @@ define(['jquery', 'URIjs', './discover_content_type', 'zip-ext', 'readium_shared
             } else {
 
                 if (libDir) {
-                        
+
                     // The Web Worker requires standalone z-worker/inflate/deflate.js files in libDir (i.e. cannot be aggregated/minified/optimised in the final generated single-file build)
                     zip.useWebWorkers = true; // (true by default)
                     zip.workerScriptsPath = libDir;
 
                 } else {
-                    
+
                     zip.useWebWorkers = false; // (true by default)
                 }
 
                 _zipFs = new zip.fs.FS();
-                
+
                 if (ebookURL instanceof Blob) {
-                    
+
                     _zipFs.importBlob(
                         ebookURL,
-                        function () {  
-                            callback(_zipFs, onerror);  
+                        function () {
+                            callback(_zipFs, onerror);
                         },
                         function () {
                             console.error("ZIP ERROR");
                             onerror.apply(this, arguments);
                         }
-                    );  
+                    );
 
                 } else {
-                        
+
                     _zipFs.importHttpContent(
                         ebookURL,
                         true,
@@ -91,7 +91,7 @@ define(['jquery', 'URIjs', './discover_content_type', 'zip-ext', 'readium_shared
 
             withZipFsPerform(
                 function (zipFs, onerror) {
-                    
+
                     var entry = zipFs.find(relativePathRelativeToPackageRoot);
 
                     if (typeof entry === 'undefined' || entry === null) {
@@ -105,7 +105,7 @@ define(['jquery', 'URIjs', './discover_content_type', 'zip-ext', 'readium_shared
                     }
                 },
                 function() {
-                    
+
                     var error = arguments ?
                         (
                             (arguments.length && (arguments[0] instanceof Error)) ?
@@ -113,48 +113,48 @@ define(['jquery', 'URIjs', './discover_content_type', 'zip-ext', 'readium_shared
                             : ((arguments instanceof Error) ? arguments : undefined)
                         )
                         : undefined;
-                    
+
                     // console.log(error);
                     // if (!error) console.log(arguments);
-                    
+
                     var isReadiumError = error ? (error.message.indexOf(READIUM_ERROR_PREFIX) == 0) : false;
-                    
+
                     // we fallback to Blobl for all other types of errors (not just those emanating from the zip lib, but also from the readCallback())
                     if (!isReadiumError && !(ebookURL instanceof Blob)) {
                         console.log("Zip lib failed to load zipped EPUB via HTTP, trying alternative HTTP fetch... (" + ebookURL + ")");
-                        
+
                         var xhr = new XMLHttpRequest();
-                        
+
                         //xhr.addEventListener('load', function(){});
-                        
+
                         xhr.onreadystatechange = function(){
-                            
+
                             //console.log("XMLHttpRequest readyState: " + this.readyState);
                             if (this.readyState != 4) return;
-                            
+
                             var success = xhr.status >= 200 && xhr.status < 300 || xhr.status === 304;
                             if (success) {
                                 ebookURL = this.response;
                                 //ebookURL_filepath = Helpers.getEbookUrlFilePath(ebookURL);
                                 //console.log(ebookURL_filepath);
-                                
+
                                 _zipFs = undefined;
-                                
+
                                 if (ebookURL instanceof Blob) {
                                     fetchFileContents(relativePathRelativeToPackageRoot, readCallback, onerror);
                                 }
                                 else {
                                     onerror(new Error("XMLHttpRequest response not Blob!?"));
                                 }
-                                
+
                                 return;
                             }
-                            
+
                             onerror(xhr.statusText);
                         };
                         xhr.open('GET', ebookURL, true);
                         xhr.responseType = 'blob';
-                        xhr.send(null); 
+                        xhr.send(null);
 
     //                     $.get(ebookURL, function(data) {
     // console.log(typeof data);
@@ -166,7 +166,7 @@ define(['jquery', 'URIjs', './discover_content_type', 'zip-ext', 'readium_shared
     //                         console.log(err);
     //                         onerror.apply(this, arguments);
     //                     });
-                        
+
                     } else {
                         onerror.apply(this, arguments);
                     }
@@ -178,9 +178,9 @@ define(['jquery', 'URIjs', './discover_content_type', 'zip-ext', 'readium_shared
         // PUBLIC API
 
         this.resolveURI = function (pathRelativeToPackageRoot) {
-            
+
             var url = ebookURL_filepath;
-            
+
             try {
                 //url = new URI(relativeUrl).absoluteTo(url).search('').hash('').toString();
                 url = new URI(url).search('').hash('').toString();
@@ -188,7 +188,7 @@ define(['jquery', 'URIjs', './discover_content_type', 'zip-ext', 'readium_shared
                 console.error(err);
                 console.log(url);
             }
-            
+
             return url + (url.charAt(url.length-1) == '/' ? "" : "/") + pathRelativeToPackageRoot;
         };
 
