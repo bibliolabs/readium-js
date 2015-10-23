@@ -18,7 +18,7 @@ define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/re
     function (versionText, $, _, ReaderView, PublicationFetcher,
               PackageParser, IframeZipLoader, IframeLoader) {
 
-    var DEBUG_VERSION_GIT = false; 
+    var DEBUG_VERSION_GIT = false;
 
     var Readium = function(readiumOptions, readerOptions){
 
@@ -34,7 +34,7 @@ define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/re
             var sourceParts = src.split("/");
             //sourceParts.pop(); //remove source file name
             var baseHref = sourceParts.join("/"); // + "/";
-            
+
             console.log("EPUB doc base href:");
             console.log(baseHref);
             var base = "<base href=\"" + baseHref + "\"/>";
@@ -46,10 +46,10 @@ define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/re
             }
 
             contentDocumentHtml = contentDocumentHtml.replace(/(<head[\s\S]*?>)/, "$1" + base + scripts);
-                        
+
             contentDocumentHtml = contentDocumentHtml.replace(/(<iframe[\s\S]+?)src[\s\S]*?=[\s\S]*?(["'])([^"']+?)(["'])([\s\S]*?>)/g, '$1data-src=$2$3$4$5');
 //console.debug(contentDocumentHtml);
-            
+
             return contentDocumentHtml;
         };
 
@@ -90,21 +90,21 @@ define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/re
             _currentPublicationFetcher.initialize(function(resourceFetcher) {
 
                 if (!resourceFetcher) {
-                    
+
                     callback(undefined);
                     return;
                 }
-                
+
                 var _packageParser = new PackageParser(_currentPublicationFetcher);
 
                 _packageParser.parse(function(packageDocument){
-                    
+
                     if (!packageDocument) {
-                        
+
                         callback(undefined);
                         return;
                     }
-                    
+
                     var openBookOptions = readiumOptions.openBookOptions || {};
                     var openBookData = $.extend(packageDocument.getSharedJsPackageData(), openBookOptions);
 
@@ -124,49 +124,49 @@ define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/re
 
 
         this.openPackageDocument = function(ebookURL, callback, openPageRequest)  {
-                        
-            if (!(ebookURL instanceof Blob)
+
+            if (!(ebookURL instanceof Blob) && !(ebookURL instanceof File)
                 // && ebookURL.indexOf("file://") != 0
                 // && ebookURL.indexOf("filesystem://") != 0
                 // && ebookURL.indexOf("filesystem:chrome-extension://") != 0
             ) {
-            
+
                 console.debug("-------------------------------");
-                
-                var origin = window.location.origin; 
+
+                var origin = window.location.origin;
                 if (!origin) {
                     origin = window.location.protocol + '//' + window.location.host;
                 }
                 var thisRootUrl = origin + window.location.pathname;
-                
+
                 console.debug("BASE URL: " + thisRootUrl);
                 console.debug("RELATIVE URL: " + ebookURL);
-                
+
                 try {
                     ebookURL = new URI(ebookURL).absoluteTo(thisRootUrl).toString();
                 } catch(err) {
                     console.error(err);
                     console.log(ebookURL);
                 }
-                
+
                 console.debug("==>");
                 console.debug("ABSOLUTE URL: " + ebookURL);
-                
+
                 console.debug("-------------------------------");
-                
-                
+
+
                 if (ebookURL.indexOf("http://") == 0 || ebookURL.indexOf("https://") == 0) {
-                        
+
                     var xhr = new XMLHttpRequest();
                     xhr.onreadystatechange = function(){
-                        
+
                         if (this.readyState != 4) return;
-                        
+
                         var contentType = undefined;
-                        
+
                         var success = xhr.status >= 200 && xhr.status < 300 || xhr.status === 304;
                         if (success) {
-                            
+
                             var allResponseHeaders = '';
                             if (xhr.getAllResponseHeaders) {
                                 allResponseHeaders = xhr.getAllResponseHeaders();
@@ -175,41 +175,41 @@ define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/re
                                 } else allResponseHeaders ='';
                                 //console.debug(allResponseHeaders);
                             }
-                            
+
                             if (allResponseHeaders.indexOf("content-type") > 0) {
                                 contentType = xhr.getResponseHeader("Content-Type") || xhr.getResponseHeader("content-type");
                                 if (!contentType) contentType = undefined;
-                                
+
                                 console.debug("CONTENT-TYPE: " + ebookURL + " ==> " + contentType);
                             }
-                            
+
                             var responseURL = xhr.responseURL;
                             if (!responseURL) {
                                 if (allResponseHeaders.indexOf("location") > 0) {
                                     responseURL = xhr.getResponseHeader("Location") || xhr.getResponseHeader("location");
                                 }
                             }
-                            
+
                             if (responseURL && responseURL !== ebookURL) {
                                 console.debug("REDIRECT: " + ebookURL + " ==> " + responseURL);
-    
+
                                 ebookURL = responseURL;
                             }
                         }
-                        
+
                         openPackageDocument_(ebookURL, callback, openPageRequest, contentType);
                     };
                     xhr.open('HEAD', ebookURL, true);
                     //xhr.responseType = 'blob';
-                    xhr.send(null); 
-                
+                    xhr.send(null);
+
                     return;
                 }
             }
-                    
+
             openPackageDocument_(ebookURL, callback, openPageRequest);
         };
-        
+
         this.closePackageDocument = function() {
             if (_currentPublicationFetcher) {
                 _currentPublicationFetcher.flushCache();
@@ -249,12 +249,12 @@ define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/re
                 var repo = version.repos[i];
 
                 if (DEBUG_VERSION_GIT) {
-                
+
                     console.log("##########################");
-    
+
                     console.log("repo.name");
                     console.debug(repo.name);
-    
+
                     console.log("repo.path");
                     console.debug(repo.path);
                 }
@@ -296,19 +296,19 @@ define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/re
                         $.get(url, function(data) {
 
                             version[repo.name].branch = ref;
-                            
+
                             var sha = data.substring(0, data.length - 1);
                             version[repo.name].sha = sha;
-                            
+
                             if (DEBUG_VERSION_GIT) {
                                 console.log("getRef OKAY");
                                 console.debug(url);
-    
+
                                 console.log(data);
-    
+
                                 console.log("branch");
                                 console.debug(ref);
-                                
+
                                 console.log("sha");
                                 console.debug(sha);
                             }
@@ -335,14 +335,14 @@ define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/re
                         }
 
                         $.get(url, function(data) {
-                            
+
                             if (DEBUG_VERSION_GIT) {
                                 console.log("getGit OKAY");
                                 console.debug(url);
-                                
+
                                 console.log(data);
                             }
-                            
+
                             if (data.indexOf('gitdir: ') == 0) {
 
                                 var gitDir = repo.path + "/" + data.substring('gitdir: '.length).trim();
@@ -386,7 +386,7 @@ define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/re
                             if (DEBUG_VERSION_GIT) {
                                 console.log("getHead OKAY");
                                 console.debug(url);
-                            
+
                                 console.log(data);
                             }
 

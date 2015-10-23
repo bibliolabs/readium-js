@@ -39,7 +39,6 @@ define(['jquery', 'URIjs', './discover_content_type', 'zip-ext', 'readium_shared
                 callback(_zipFs, onerror);
 
             } else {
-
                 if (libDir) {
 
                     // The Web Worker requires standalone z-worker/inflate/deflate.js files in libDir (i.e. cannot be aggregated/minified/optimised in the final generated single-file build)
@@ -53,8 +52,7 @@ define(['jquery', 'URIjs', './discover_content_type', 'zip-ext', 'readium_shared
 
                 _zipFs = new zip.fs.FS();
 
-                if (ebookURL instanceof Blob) {
-
+                if (ebookURL instanceof Blob || ebookURL instanceof File) {
                     _zipFs.importBlob(
                         ebookURL,
                         function () {
@@ -120,7 +118,7 @@ define(['jquery', 'URIjs', './discover_content_type', 'zip-ext', 'readium_shared
                     var isReadiumError = error ? (error.message.indexOf(READIUM_ERROR_PREFIX) == 0) : false;
 
                     // we fallback to Blobl for all other types of errors (not just those emanating from the zip lib, but also from the readCallback())
-                    if (!isReadiumError && !(ebookURL instanceof Blob)) {
+                    if (!isReadiumError && !(ebookURL instanceof Blob) && !(ebookURL instanceof File)) {
                         console.log("Zip lib failed to load zipped EPUB via HTTP, trying alternative HTTP fetch... (" + ebookURL + ")");
 
                         var xhr = new XMLHttpRequest();
@@ -168,6 +166,7 @@ define(['jquery', 'URIjs', './discover_content_type', 'zip-ext', 'readium_shared
     //                     });
 
                     } else {
+                        console.log("ZipFS error entry: %o", error);
                         onerror.apply(this, arguments);
                     }
                 }
@@ -195,7 +194,7 @@ define(['jquery', 'URIjs', './discover_content_type', 'zip-ext', 'readium_shared
         this.fetchFileContentsText = function(relativePathRelativeToPackageRoot, fetchCallback, onerror) {
 
             fetchFileContents(relativePathRelativeToPackageRoot, function (entry) {
-                entry.getText(fetchCallback, undefined, _checkCrc32);
+                entry.getText(fetchCallback, _checkCrc32);
             }, onerror)
         };
 
