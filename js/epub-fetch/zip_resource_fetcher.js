@@ -53,6 +53,7 @@ define(['jquery', 'URIjs', './discover_content_type', 'zip-ext', 'readium_shared
                 _zipFs = new zip.fs.FS();
 
                 if (ebookURL instanceof Blob || ebookURL instanceof File) {
+
                     _zipFs.importBlob(
                         ebookURL,
                         function () {
@@ -138,7 +139,8 @@ define(['jquery', 'URIjs', './discover_content_type', 'zip-ext', 'readium_shared
 
                                 _zipFs = undefined;
 
-                                if (ebookURL instanceof Blob) {
+
+                                if (ebookURL instanceof Blob || ebookURL instanceof File) {
                                     fetchFileContents(relativePathRelativeToPackageRoot, readCallback, onerror);
                                 }
                                 else {
@@ -177,6 +179,14 @@ define(['jquery', 'URIjs', './discover_content_type', 'zip-ext', 'readium_shared
         // PUBLIC API
 
         this.resolveURI = function (pathRelativeToPackageRoot) {
+            var pathRelativeToPackageRootUri = undefined;
+            try {
+                pathRelativeToPackageRootUri = new URI(pathRelativeToPackageRoot);
+            } catch(err) {
+                console.error(err);
+                console.log(pathRelativeToPackageRoot);
+            }
+            if (pathRelativeToPackageRootUri && pathRelativeToPackageRootUri.is("absolute")) return pathRelativeToPackageRoot; //pathRelativeToPackageRootUri.scheme() == "http://", "https://", "data:", etc.
 
             var url = ebookURL_filepath;
 

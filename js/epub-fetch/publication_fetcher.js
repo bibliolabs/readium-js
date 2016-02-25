@@ -47,6 +47,8 @@ define(['jquery', 'URIjs', './markup_parser', './plain_resource_fetcher', './zip
             // Non exploded EPUBs (i.e. zipped .epub documents) should be fetched in a programmatical manner:
             _shouldConstructDomProgrammatically = !isEpubExploded;
 
+            console.log("_shouldConstructDomProgrammatically INIT: " + _shouldConstructDomProgrammatically);
+            
             createResourceFetcher(isEpubExploded, function(resourceFetcher) {
 
                 //NOTE: _resourceFetcher == resourceFetcher
@@ -66,8 +68,16 @@ define(['jquery', 'URIjs', './markup_parser', './plain_resource_fetcher', './zip
             // binary object means packed EPUB
             if (ebookURL instanceof Blob || ebookURL instanceof File) return false;
 
-            if (_contentType && _contentType.indexOf("application/epub+zip") >= 0) return false;
-
+            if (_contentType &&
+                (
+                    _contentType.indexOf("application/epub+zip") >= 0
+                    ||
+                    _contentType.indexOf("application/zip") >= 0
+                    ||
+                    _contentType.indexOf("application/octet-stream") >= 0
+                )
+               ) return false;
+            
             var uriTrimmed = ebookURL;
 
             try {
@@ -110,6 +120,7 @@ define(['jquery', 'URIjs', './markup_parser', './plain_resource_fetcher', './zip
          * false if documents can be fed directly into a window or iframe by src URL without using special fetching logic.
          */
         this.shouldConstructDomProgrammatically = function (){
+            
             return _shouldConstructDomProgrammatically;
         };
 
@@ -123,7 +134,9 @@ define(['jquery', 'URIjs', './markup_parser', './plain_resource_fetcher', './zip
          * the base URI of their content document.
          */
         this.shouldFetchMediaAssetsProgrammatically = function() {
-            return _shouldConstructDomProgrammatically && !isExploded();
+            
+            var ret = _shouldConstructDomProgrammatically && !isExploded();
+            return ret;
         };
 
         this.getEbookURL = function() {
@@ -303,6 +316,8 @@ define(['jquery', 'URIjs', './markup_parser', './plain_resource_fetcher', './zip
                 &&
                 new URI(relativeToPackagePath).scheme() !== '') {
 
+                console.log("shouldConstructDomProgrammatically EXTERNAL RESOURCE ...");
+
                   if (fetchMode === 'blob') {
 
                       var xhr = new XMLHttpRequest();
@@ -408,6 +423,7 @@ define(['jquery', 'URIjs', './markup_parser', './plain_resource_fetcher', './zip
                 if (_encryptionHandler.isEncryptionSpecified()) {
                     // EPUBs that use encryption for any resources should be fetched in a programmatical manner:
                     _shouldConstructDomProgrammatically = true;
+                    console.log("_shouldConstructDomProgrammatically ENCRYPTION ACTIVE: " + _shouldConstructDomProgrammatically);
                 }
 
                 settingFinishedCallback();
