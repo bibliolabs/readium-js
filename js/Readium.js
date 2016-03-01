@@ -64,6 +64,46 @@ define(['readium_shared_js/globals', 'text!version.json', 'jquery', 'underscore'
             contentDocumentHtml = contentDocumentHtml.replace(/<title>[\s]*<\/title>/g, '<title>TITLE</title>');
             contentDocumentHtml = contentDocumentHtml.replace(/<title[\s]*\/>/g, '<title>TITLE</title>');
             
+            // Replace quotes < IE 10 cannot handle proper quoting when traversting textNodes.
+            contentDocumentHtml = contentDocumentHtml.replace(/(“)/g, '"'); // &#8220;
+            contentDocumentHtml = contentDocumentHtml.replace(/(”)/g, '"'); // &#8221;
+            // Replace apostrophes
+            contentDocumentHtml = contentDocumentHtml.replace(/(’)/g, '\''); // &#8217;
+            
+            // When using the IE iframe loader all documents are loaded as html. EPUBs are valid XML so self closing
+            // XML tags must be converted to html in order to not break the browser.
+            var validSelfClosingTags = [
+                'area',
+                'base',
+                'br',
+                'col',
+                'command',
+                'embed',
+                'hr',
+                'img',
+                'input',
+                'keygen',
+                'link',
+                'meta',
+                'param',
+                'source',
+                'track',
+                'wbr'
+            ];
+
+            var replacementFunc = function (tag) {
+                var tokens = tag.match(/<(.*)\/>/i)[1].split(' ');
+                var tagName = tokens[0];
+                if (validSelfClosingTags.indexOf(tagName) === -1) {
+                    return '<' + tokens.join(' ') + '>' + '</' + tokens[0] + '>';
+                } else {
+                    return tag;
+                }
+            };
+
+            contentDocumentHtml =  contentDocumentHtml.replace(/<[\s]*[\S][\s]*[^>]*\/>/gi, replacementFunc);
+            
+>>>>>>> Stashed changes
             return contentDocumentHtml;
         };
 
