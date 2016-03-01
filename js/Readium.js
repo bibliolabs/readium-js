@@ -103,10 +103,6 @@ define(['readium_shared_js/globals', 'text!version.json', 'jquery', 'underscore'
 
             contentDocumentHtml =  contentDocumentHtml.replace(/<[\s]*[\S][\s]*[^>]*\/>/gi, replacementFunc);
             
-<<<<<<< HEAD
-=======
->>>>>>> Stashed changes
->>>>>>> IE10QuoteApostropheFix
             return contentDocumentHtml;
         };
 
