@@ -51,7 +51,7 @@ define(['URIjs', 'readium_shared_js/views/iframe_loader', 'underscore', './disco
                     iframe.baseURI = location.href + "";
                 }
                 
-                console.error("!iframe.baseURI => " + iframe.baseURI);
+                console.log("!iframe.baseURI => " + iframe.baseURI);
             }
 
             // this is checking for codova. The thought is that iframe security issues prevent loading
