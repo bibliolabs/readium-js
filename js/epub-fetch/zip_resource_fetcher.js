@@ -39,16 +39,19 @@ define(['jquery', 'URIjs', './discover_content_type', 'zip-ext', 'readium_shared
                 callback(_zipFs, onerror);
 
             } else {
-                if (libDir) {
+                // if (libDir) {
 
-                    // The Web Worker requires standalone z-worker/inflate/deflate.js files in libDir (i.e. cannot be aggregated/minified/optimised in the final generated single-file build)
-                    zip.useWebWorkers = true; // (true by default)
-                    zip.workerScriptsPath = libDir;
+                //     // The Web Worker requires standalone z-worker/inflate/deflate.js files in libDir (i.e. cannot be aggregated/minified/optimised in the final generated single-file build)
+                //     zip.useWebWorkers = true; // (true by default)
+                //     zip.workerScriptsPath = libDir;
 
-                } else {
+                // } else {
 
-                    zip.useWebWorkers = false; // (true by default)
-                }
+                //     zip.useWebWorkers = false; // (true by default)
+                // }
+
+                // [MDA] WKWebview does *NOT* work with web workers loaded from the local filesystem reenable only if testing hybrid ios IE 9+
+                zip.useWebWorkers = false;
 
                 _zipFs = new zip.fs.FS();
 
