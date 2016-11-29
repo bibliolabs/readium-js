@@ -138,27 +138,30 @@ define(['cryptoJs/sha1'], function (CryptoJS_SHA1) {
             encryptions: undefined
         };
 
-        var encryptedData = $('EncryptedData', encryptionDom);
-        encryptedData.each(function (index, encryptedData) {
-            var encryptionAlgorithm = $('EncryptionMethod', encryptedData).first().attr('Algorithm');
+        // [MDA] This is broken on Safari and broken in general on Chrome. Instead lets
+        // ignore any encrypted resources (fonts here), and just load the EPUB. Reading in a
+        // different font is better than not reading at all.
+        // var encryptedData = $('EncryptedData', encryptionDom);
+        // encryptedData.each(function (index, encryptedData) {
+        //     var encryptionAlgorithm = $('EncryptionMethod', encryptedData).first().attr('Algorithm');
 
-            // For some reason, jQuery selector "" against XML DOM sometimes doesn't match properly
-            var cipherReference = $('CipherReference', encryptedData);
-            cipherReference.each(function (index, CipherReference) {
+        //     // For some reason, jQuery selector "" against XML DOM sometimes doesn't match properly
+        //     var cipherReference = $('CipherReference', encryptedData);
+        //     cipherReference.each(function (index, CipherReference) {
                 
-                //var cipherReferenceURI = "/" + $(CipherReference).attr('URI');
-                var cipherReferenceURI = $(CipherReference).attr('URI');
+        //         //var cipherReferenceURI = "/" + $(CipherReference).attr('URI');
+        //         var cipherReferenceURI = $(CipherReference).attr('URI');
                 
-                console.log('Encryption/obfuscation algorithm ' + encryptionAlgorithm + ' specified for ' +
-                    cipherReferenceURI);
+        //         console.log('Encryption/obfuscation algorithm ' + encryptionAlgorithm + ' specified for ' +
+        //             cipherReferenceURI);
 
-                if(!encryptionData.encryptions) {
-                    encryptionData.encryptions = {};
-                }
+        //         if(!encryptionData.encryptions) {
+        //             encryptionData.encryptions = {};
+        //         }
 
-                encryptionData.encryptions[cipherReferenceURI] = encryptionAlgorithm;
-            });
-        });
+        //         encryptionData.encryptions[cipherReferenceURI] = encryptionAlgorithm;
+        //     });
+        // });
 
         return encryptionData;
     };
