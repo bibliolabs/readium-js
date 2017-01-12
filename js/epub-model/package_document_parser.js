@@ -378,7 +378,7 @@ define(['jquery', 'underscore', '../epub-fetch/markup_parser', 'URIjs', './packa
             /*<item properties="cover-image" id="ci" href="cover.svg" media-type="image/svg+xml" />*/
             $imageNode = $(findXmlElemByLocalNameAnyNS(manifest, "item", function (element) {
                 var attr = element.getAttribute("properties");
-                return attr && _.contains(attr.split(" "), "cover-image");
+                return attr && _.includes(attr.split(" "), "cover-image");
             }));
             if ($imageNode.length === 1 && $imageNode.attr("href")) {
                 return $imageNode.attr("href");
